@@ -1468,7 +1468,7 @@ void EditorPropertyFloat::update_property() {
 void EditorPropertyFloat::_bind_methods() {
 }
 
-void EditorPropertyFloat::setup(double p_min, double p_max, double p_step, bool p_hide_slider, bool p_exp_range, bool p_greater, bool p_lesser, const String &p_suffix, bool p_radians_as_degrees) {
+void EditorPropertyFloat::setup(double p_min, double p_max, double p_step, bool p_hide_slider, bool p_exp_range, bool p_greater, bool p_lesser, bool p_infinite, bool p_finer, const String &p_suffix, bool p_radians_as_degrees) {
 	radians_as_degrees = p_radians_as_degrees;
 	spin->set_min(p_min);
 	spin->set_max(p_max);
@@ -1477,6 +1477,8 @@ void EditorPropertyFloat::setup(double p_min, double p_max, double p_step, bool 
 	spin->set_exp_ratio(p_exp_range);
 	spin->set_allow_greater(p_greater);
 	spin->set_allow_lesser(p_lesser);
+	spin->set_allow_infinite(p_infinite);
+	spin->set_allow_finer(p_finer);
 	spin->set_suffix(p_suffix);
 }
 
@@ -3446,6 +3448,8 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, const Varian
 struct EditorPropertyRangeHint {
 	bool or_greater = true;
 	bool or_less = true;
+	bool or_infinite = true;
+	bool or_finer = true;
 	double min = -99999.0;
 	double max = 99999.0;
 	double step = 1.0;
@@ -3468,6 +3472,8 @@ static EditorPropertyRangeHint _parse_range_hint(PropertyHint p_hint, const Stri
 
 		hint.or_greater = false; // If using ranged, assume false by default.
 		hint.or_less = false;
+		hint.or_infinite = false;
+		hint.or_finer = false;
 
 		hint.min = slices[0].to_float();
 		hint.max = slices[1].to_float();
@@ -3483,6 +3489,10 @@ static EditorPropertyRangeHint _parse_range_hint(PropertyHint p_hint, const Stri
 				hint.or_greater = true;
 			} else if (slice == "or_less") {
 				hint.or_less = true;
+			} else if (slice == "or_infinite") {
+				hint.or_infinite = true;
+			} else if (slice == "or_finer") {
+				hint.or_finer = true;
 			} else if (slice == "hide_slider") {
 				hint.hide_slider = true;
 			} else if (slice == "exp") {
@@ -3615,7 +3625,7 @@ EditorProperty *EditorInspectorDefaultPlugin::get_editor_for_property(Object *p_
 				EditorPropertyFloat *editor = memnew(EditorPropertyFloat);
 
 				EditorPropertyRangeHint hint = _parse_range_hint(p_hint, p_hint_text, default_float_step);
-				editor->setup(hint.min, hint.max, hint.step, hint.hide_slider, hint.exp_range, hint.or_greater, hint.or_less, hint.suffix, hint.radians_as_degrees);
+				editor->setup(hint.min, hint.max, hint.step, hint.hide_slider, hint.exp_range, hint.or_greater, hint.or_less, hint.or_infinite, hint.or_finer, hint.suffix, hint.radians_as_degrees);
 
 				return editor;
 			}
