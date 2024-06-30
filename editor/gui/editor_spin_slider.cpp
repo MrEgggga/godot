@@ -275,6 +275,7 @@ void EditorSpinSlider::_value_input_gui_input(const Ref<InputEvent> &p_event) {
 				if (code == Key::DOWN) {
 					step *= -1;
 				}
+				last_value = get_closest_rounded_value(step > 0);
 				set_value(last_value + step);
 
 				value_input_dirty = true;
