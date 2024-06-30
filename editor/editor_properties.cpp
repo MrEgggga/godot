@@ -1753,6 +1753,7 @@ void EditorPropertyRect2::setup(double p_min, double p_max, double p_step, bool 
 		spin[i]->set_hide_slider(p_hide_slider);
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
+		spin[i]->set_allow_finer(true);
 		spin[i]->set_suffix(p_suffix);
 	}
 }
@@ -1946,6 +1947,7 @@ void EditorPropertyPlane::setup(double p_min, double p_max, double p_step, bool 
 		spin[i]->set_hide_slider(p_hide_slider);
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
+		spin[i]->set_allow_finer(true);
 	}
 	spin[3]->set_suffix(p_suffix);
 }
@@ -2098,6 +2100,7 @@ void EditorPropertyQuaternion::setup(double p_min, double p_max, double p_step, 
 		spin[i]->set_hide_slider(p_hide_slider);
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
+		spin[i]->set_allow_finer(true);
 		// Quaternion is inherently unitless, however someone may want to use it as
 		// a generic way to store 4 values, so we'll still respect the suffix.
 		spin[i]->set_suffix(p_suffix);
@@ -2110,6 +2113,7 @@ void EditorPropertyQuaternion::setup(double p_min, double p_max, double p_step, 
 		euler[i]->set_hide_slider(false);
 		euler[i]->set_allow_greater(true);
 		euler[i]->set_allow_lesser(true);
+		euler[i]->set_allow_finer(true);
 		euler[i]->set_suffix(U"\u00B0");
 	}
 
@@ -2245,6 +2249,7 @@ void EditorPropertyAABB::setup(double p_min, double p_max, double p_step, bool p
 		spin[i]->set_hide_slider(p_hide_slider);
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
+		spin[i]->set_allow_finer(true);
 		spin[i]->set_suffix(p_suffix);
 	}
 }
@@ -2326,6 +2331,7 @@ void EditorPropertyTransform2D::setup(double p_min, double p_max, double p_step,
 		spin[i]->set_hide_slider(p_hide_slider);
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
+		spin[i]->set_allow_finer(true);
 		if (i % 3 == 2) {
 			spin[i]->set_suffix(p_suffix);
 		}
@@ -2411,6 +2417,7 @@ void EditorPropertyBasis::setup(double p_min, double p_max, double p_step, bool 
 		spin[i]->set_hide_slider(p_hide_slider);
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
+		spin[i]->set_allow_finer(true);
 		// Basis is inherently unitless, however someone may want to use it as
 		// a generic way to store 9 values, so we'll still respect the suffix.
 		spin[i]->set_suffix(p_suffix);
@@ -2503,6 +2510,7 @@ void EditorPropertyTransform3D::setup(double p_min, double p_max, double p_step,
 		spin[i]->set_hide_slider(p_hide_slider);
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
+		spin[i]->set_allow_finer(true);
 		if (i % 4 == 3) {
 			spin[i]->set_suffix(p_suffix);
 		}
@@ -2603,6 +2611,7 @@ void EditorPropertyProjection::setup(double p_min, double p_max, double p_step, 
 		spin[i]->set_hide_slider(p_hide_slider);
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
+		spin[i]->set_allow_finer(true);
 		if (i % 4 == 3) {
 			spin[i]->set_suffix(p_suffix);
 		}
