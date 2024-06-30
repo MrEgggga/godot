@@ -94,11 +94,11 @@ void Range::set_value(double p_val) {
 }
 
 void Range::_set_value_no_signal(double p_val) {
-	if (!Math::is_finite(p_val)) {
+	if (!Math::is_finite(p_val) && !shared->allow_infinite) {
 		return;
 	}
 
-	if (shared->step > 0) {
+	if (shared->step > 0 && !shared->allow_finer) {
 		p_val = Math::round((p_val - shared->min) / shared->step) * shared->step + shared->min;
 	}
 
@@ -262,6 +262,8 @@ void Range::unshare() {
 	nshared->exp_ratio = shared->exp_ratio;
 	nshared->allow_greater = shared->allow_greater;
 	nshared->allow_lesser = shared->allow_lesser;
+	nshared->allow_infinite = shared->allow_infinite;
+	nshared->allow_finer = shared->allow_finer;
 	_unref_shared();
 	_ref_shared(nshared);
 }
@@ -288,6 +290,7 @@ void Range::_unref_shared() {
 
 void Range::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_value"), &Range::get_value);
+	ClassDB::bind_method(D_METHOD("get_closest_rounded_value", "floor"), &Range::get_closest_rounded_value);
 	ClassDB::bind_method(D_METHOD("get_min"), &Range::get_min);
 	ClassDB::bind_method(D_METHOD("get_max"), &Range::get_max);
 	ClassDB::bind_method(D_METHOD("get_step"), &Range::get_step);
@@ -308,6 +311,10 @@ void Range::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_greater_allowed"), &Range::is_greater_allowed);
 	ClassDB::bind_method(D_METHOD("set_allow_lesser", "allow"), &Range::set_allow_lesser);
 	ClassDB::bind_method(D_METHOD("is_lesser_allowed"), &Range::is_lesser_allowed);
+	ClassDB::bind_method(D_METHOD("set_allow_infinite", "allow"), &Range::set_allow_infinite);
+	ClassDB::bind_method(D_METHOD("is_infinite_allowed"), &Range::is_infinite_allowed);
+	ClassDB::bind_method(D_METHOD("set_allow_finer", "allow"), &Range::set_allow_finer);
+	ClassDB::bind_method(D_METHOD("is_finer_allowed"), &Range::is_finer_allowed);
 
 	ClassDB::bind_method(D_METHOD("share", "with"), &Range::_share);
 	ClassDB::bind_method(D_METHOD("unshare"), &Range::unshare);
@@ -325,6 +332,9 @@ void Range::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "rounded"), "set_use_rounded_values", "is_using_rounded_values");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_greater"), "set_allow_greater", "is_greater_allowed");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_lesser"), "set_allow_lesser", "is_lesser_allowed");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_infinite"), "set_allow_infinite", "is_infinite_allowed");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_finer"), "set_allow_finer", "is_finer_allowed");
+
 
 	GDVIRTUAL_BIND(_value_changed, "new_value");
 
@@ -333,6 +343,30 @@ void Range::_bind_methods() {
 	ADD_LINKED_PROPERTY("min_value", "page");
 	ADD_LINKED_PROPERTY("max_value", "value");
 	ADD_LINKED_PROPERTY("max_value", "page");
+}
+
+double Range::get_closest_rounded_value(bool p_floor) const {
+	double val = shared->val;
+	if (shared->step > 0) {
+		double steps = (val - shared->min) / shared->step;
+		double rounded_steps;
+		// due to floating point imprecision floor & ceil might not always work
+		// as we want them to
+		// possible issues for things with real small steps? who knows
+		// there are already issues with that though probably
+		if(Math::is_equal_approx(steps, Math::round(steps))) {
+			rounded_steps = Math::round(steps);
+		} else {
+			rounded_steps = p_floor ? Math::floor(steps) : Math::ceil(steps);
+		}
+		val = rounded_steps * shared->step + shared->min;
+	}
+
+	if (_rounded_values) {
+		val = p_floor ? Math::floor(val) : Math::ceil(val);
+	}
+	
+	return val;
 }
 
 void Range::set_use_rounded_values(bool p_enable) {
@@ -371,6 +405,22 @@ void Range::set_allow_lesser(bool p_allow) {
 
 bool Range::is_lesser_allowed() const {
 	return shared->allow_lesser;
+}
+
+void Range::set_allow_infinite(bool p_allow) {
+	shared->allow_infinite = p_allow;
+}
+
+bool Range::is_infinite_allowed() const {
+	return shared->allow_infinite;
+}
+
+void Range::set_allow_finer(bool p_allow) {
+	shared->allow_finer = p_allow;
+}
+
+bool Range::is_finer_allowed() const {
+	return shared->allow_finer;
 }
 
 Range::Range() {

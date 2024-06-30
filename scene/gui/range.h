@@ -45,6 +45,8 @@ class Range : public Control {
 		bool exp_ratio = false;
 		bool allow_greater = false;
 		bool allow_lesser = false;
+		bool allow_infinite = false;
+		bool allow_finer = false;
 		HashSet<Range *> owners;
 		void emit_value_changed();
 		void emit_changed(const char *p_what = "");
@@ -88,6 +90,10 @@ public:
 	double get_page() const;
 	double get_as_ratio() const;
 
+	// FIXME: this is a terrible name
+	// maybe something like "get_closest_rounded_value"?
+	double get_closest_rounded_value(bool p_floor) const;
+
 	void set_use_rounded_values(bool p_enable);
 	bool is_using_rounded_values() const;
 
@@ -99,6 +105,12 @@ public:
 
 	void set_allow_lesser(bool p_allow);
 	bool is_lesser_allowed() const;
+
+	void set_allow_infinite(bool p_allow);
+	bool is_infinite_allowed() const;
+
+	void set_allow_finer(bool p_allow);
+	bool is_finer_allowed() const;
 
 	void share(Range *p_range);
 	void unshare();
