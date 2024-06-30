@@ -100,7 +100,7 @@ public:
 
 	String get_tooltip(const Point2 &p_pos) const override;
 
-	String get_text_value() const;
+	String get_text_value();
 	void set_label(const String &p_label);
 	String get_label() const;
 

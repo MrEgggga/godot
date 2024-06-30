@@ -41,7 +41,10 @@ Size2 SpinBox::get_minimum_size() const {
 }
 
 void SpinBox::_update_text(bool p_keep_line_edit) {
-	String value = String::num(get_value(), Math::range_step_decimals(get_step()));
+	String value = String::num(get_value());
+	if(!line_edit->has_focus()) {
+		value = String::num(get_value(), Math::range_step_decimals(get_step()));
+	}
 	if (is_localizing_numeral_system()) {
 		value = TS->format_number(value);
 	}
@@ -115,7 +118,8 @@ void SpinBox::_range_click_timeout() {
 	if (!drag.enabled && Input::get_singleton()->is_mouse_button_pressed(MouseButton::LEFT)) {
 		bool up = get_local_mouse_position().y < (get_size().height / 2);
 		double step = get_custom_arrow_step() != 0.0 ? get_custom_arrow_step() : get_step();
-		set_value(get_value() + (up ? step : -step));
+		double val_rounded = get_closest_rounded_value(up);
+		set_value(val_rounded + (up ? step : -step));
 
 		if (range_click_timer->is_one_shot()) {
 			range_click_timer->set_wait_time(0.075);
@@ -155,7 +159,8 @@ void SpinBox::gui_input(const Ref<InputEvent> &p_event) {
 			case MouseButton::LEFT: {
 				line_edit->grab_focus();
 
-				set_value(get_value() + (up ? step : -step));
+				double val_rounded = get_closest_rounded_value(up);
+				set_value(val_rounded + (up ? step : -step));
 
 				range_click_timer->set_wait_time(0.6);
 				range_click_timer->set_one_shot(true);
@@ -171,12 +176,20 @@ void SpinBox::gui_input(const Ref<InputEvent> &p_event) {
 			case MouseButton::WHEEL_UP: {
 				if (line_edit->has_focus()) {
 					set_value(get_value() + step * mb->get_factor());
+					// FIXME: should be rounded closest rather than ceiling
+					// to match with current behavior -- currently a range with
+					// allow_finer enabled will change faster than one without.
+					// personally I prefer scrolling always changing the number
+					// but in any case the behavior shouldn't depend on allow_finer
+					set_value(get_closest_rounded_value(false));
 					accept_event();
 				}
 			} break;
 			case MouseButton::WHEEL_DOWN: {
 				if (line_edit->has_focus()) {
 					set_value(get_value() - step * mb->get_factor());
+					// FIXME: same thing over here
+					set_value(get_closest_rounded_value(true));
 					accept_event();
 				}
 			} break;
@@ -200,6 +213,8 @@ void SpinBox::gui_input(const Ref<InputEvent> &p_event) {
 			drag.diff_y += mm->get_relative().y;
 			double diff_y = -0.01 * Math::pow(ABS(drag.diff_y), 1.8) * SIGN(drag.diff_y);
 			set_value(CLAMP(drag.base_val + step * diff_y, get_min(), get_max()));
+			// FIXME: same thing here as with the scroll wheel
+			set_value(get_closest_rounded_value(diff_y < 0));
 		} else if (drag.allowed && drag.capture_pos.distance_to(mm->get_position()) > 2) {
 			Input::get_singleton()->set_mouse_mode(Input::MOUSE_MODE_CAPTURED);
 			drag.enabled = true;

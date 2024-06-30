@@ -48,7 +48,12 @@ String EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
 	return TS->format_number(rtos(get_value()));
 }
 
-String EditorSpinSlider::get_text_value() const {
+// no longer const. which is probably bad
+// (doesn't cause any compiler errors yet though)
+String EditorSpinSlider::get_text_value() {
+	if(has_focus()) {
+		return TS->format_number(String::num(get_value()));
+	}
 	return TS->format_number(String::num(get_value(), Math::range_step_decimals(get_step())));
 }
 
@@ -66,9 +71,9 @@ void EditorSpinSlider::gui_input(const Ref<InputEvent> &p_event) {
 				if (updown_offset != -1 && ((!is_layout_rtl() && mb->get_position().x > updown_offset) || (is_layout_rtl() && mb->get_position().x < updown_offset))) {
 					// Updown pressed.
 					if (mb->get_position().y < get_size().height / 2) {
-						set_value(get_value() + get_step());
+						set_value(get_closest_rounded_value(true) + get_step());
 					} else {
-						set_value(get_value() - get_step());
+						set_value(get_closest_rounded_value(false) - get_step());
 					}
 					return;
 				}
@@ -121,6 +126,7 @@ void EditorSpinSlider::gui_input(const Ref<InputEvent> &p_event) {
 					set_value(Math::round(pre_grab_value + get_step() * grabbing_spinner_dist_cache * 10));
 				} else {
 					set_value(pre_grab_value + get_step() * grabbing_spinner_dist_cache);
+					set_value(get_closest_rounded_value(grabbing_spinner_dist_cache > 0));
 				}
 			}
 		} else if (updown_offset != -1) {
