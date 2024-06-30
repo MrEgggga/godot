@@ -51,7 +51,7 @@ String EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
 // no longer const. which is probably bad
 // (doesn't cause any compiler errors yet though)
 String EditorSpinSlider::get_text_value() {
-	if(has_focus()) {
+	if(has_focus() && is_finer_allowed()) {
 		return TS->format_number(String::num(get_value()));
 	}
 	return TS->format_number(String::num(get_value(), Math::range_step_decimals(get_step())));

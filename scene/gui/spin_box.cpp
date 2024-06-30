@@ -42,7 +42,7 @@ Size2 SpinBox::get_minimum_size() const {
 
 void SpinBox::_update_text(bool p_keep_line_edit) {
 	String value = String::num(get_value());
-	if(!line_edit->has_focus()) {
+	if(!line_edit->has_focus() || !is_finer_allowed()) {
 		value = String::num(get_value(), Math::range_step_decimals(get_step()));
 	}
 	if (is_localizing_numeral_system()) {
