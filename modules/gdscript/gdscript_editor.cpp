@@ -868,9 +868,15 @@ static void _find_annotation_arguments(const GDScriptParser::AnnotationNode *p_a
 			ScriptLanguage::CodeCompletionOption slider2("or_less", ScriptLanguage::CODE_COMPLETION_KIND_PLAIN_TEXT);
 			slider2.insert_text = slider2.display.quote(p_quote_style);
 			r_result.insert(slider2.display, slider2);
-			ScriptLanguage::CodeCompletionOption slider3("hide_slider", ScriptLanguage::CODE_COMPLETION_KIND_PLAIN_TEXT);
+			ScriptLanguage::CodeCompletionOption slider3("or_infinite", ScriptLanguage::CODE_COMPLETION_KIND_PLAIN_TEXT);
 			slider3.insert_text = slider3.display.quote(p_quote_style);
 			r_result.insert(slider3.display, slider3);
+			ScriptLanguage::CodeCompletionOption slider4("or_finer", ScriptLanguage::CODE_COMPLETION_KIND_PLAIN_TEXT);
+			slider4.insert_text = slider4.display.quote(p_quote_style);
+			r_result.insert(slider4.display, slider4);
+			ScriptLanguage::CodeCompletionOption slider5("hide_slider", ScriptLanguage::CODE_COMPLETION_KIND_PLAIN_TEXT);
+			slider5.insert_text = slider5.display.quote(p_quote_style);
+			r_result.insert(slider5.display, slider5);
 		}
 	} else if (p_annotation->name == SNAME("@export_exp_easing")) {
 		if (p_argument == 0 || p_argument == 1) {
