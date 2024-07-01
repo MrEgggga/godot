@@ -162,6 +162,7 @@ void EditorPropertyVectorN::setup(double p_min, double p_max, double p_step, boo
 		spin->set_allow_greater(true);
 		spin->set_allow_lesser(true);
 		spin->set_allow_finer(true);
+		spin->set_real_t_value(true);
 		spin->set_suffix(p_suffix);
 	}
 

@@ -52,9 +52,14 @@ String EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
 // (doesn't cause any compiler errors yet though)
 String EditorSpinSlider::get_text_value() {
 	if(has_focus() && is_finer_allowed()) {
-		return TS->format_number(String::num(get_value()));
+		if(real_t_value) {
+			return TS->format_number(String::num_real((real_t) get_value()));
+		} else {
+			return TS->format_number(String::num(get_value()));
+		}
+	} else {
+		return TS->format_number(String::num(get_value(), Math::range_step_decimals(get_step())));
 	}
-	return TS->format_number(String::num(get_value(), Math::range_step_decimals(get_step())));
 }
 
 void EditorSpinSlider::gui_input(const Ref<InputEvent> &p_event) {
@@ -664,6 +669,14 @@ void EditorSpinSlider::set_flat(bool p_enable) {
 
 bool EditorSpinSlider::is_flat() const {
 	return flat;
+}
+
+void EditorSpinSlider::set_real_t_value(bool p_real) {
+	real_t_value = p_real;
+}
+
+bool EditorSpinSlider::is_real_t_value() const {
+	return real_t_value;
 }
 
 bool EditorSpinSlider::is_grabbing() const {

@@ -72,6 +72,8 @@ class EditorSpinSlider : public Range {
 	bool hide_slider = false;
 	bool flat = false;
 
+	bool real_t_value = false;
+
 	void _grab_start();
 	void _grab_end();
 
@@ -115,6 +117,9 @@ public:
 
 	void set_flat(bool p_enable);
 	bool is_flat() const;
+
+	void set_real_t_value(bool p_real);
+	bool is_real_t_value() const;
 
 	bool is_grabbing() const;
 

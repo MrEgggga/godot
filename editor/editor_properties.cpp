@@ -1468,7 +1468,7 @@ void EditorPropertyFloat::update_property() {
 void EditorPropertyFloat::_bind_methods() {
 }
 
-void EditorPropertyFloat::setup(double p_min, double p_max, double p_step, bool p_hide_slider, bool p_exp_range, bool p_greater, bool p_lesser, bool p_infinite, bool p_finer, const String &p_suffix, bool p_radians_as_degrees) {
+void EditorPropertyFloat::setup(double p_min, double p_max, double p_step, bool p_hide_slider, bool p_exp_range, bool p_greater, bool p_lesser, bool p_infinite, bool p_finer, bool p_real_t, const String &p_suffix, bool p_radians_as_degrees) {
 	radians_as_degrees = p_radians_as_degrees;
 	spin->set_min(p_min);
 	spin->set_max(p_max);
@@ -1479,6 +1479,7 @@ void EditorPropertyFloat::setup(double p_min, double p_max, double p_step, bool 
 	spin->set_allow_lesser(p_lesser);
 	spin->set_allow_infinite(p_infinite);
 	spin->set_allow_finer(p_finer);
+	spin->set_real_t_value(p_real_t);
 	spin->set_suffix(p_suffix);
 }
 
@@ -1754,6 +1755,7 @@ void EditorPropertyRect2::setup(double p_min, double p_max, double p_step, bool 
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
 		spin[i]->set_allow_finer(true);
+		spin[i]->set_real_t_value(true);
 		spin[i]->set_suffix(p_suffix);
 	}
 }
@@ -1948,6 +1950,7 @@ void EditorPropertyPlane::setup(double p_min, double p_max, double p_step, bool 
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
 		spin[i]->set_allow_finer(true);
+		spin[i]->set_real_t_value(true);
 	}
 	spin[3]->set_suffix(p_suffix);
 }
@@ -2101,6 +2104,7 @@ void EditorPropertyQuaternion::setup(double p_min, double p_max, double p_step, 
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
 		spin[i]->set_allow_finer(true);
+		spin[i]->set_real_t_value(true);
 		// Quaternion is inherently unitless, however someone may want to use it as
 		// a generic way to store 4 values, so we'll still respect the suffix.
 		spin[i]->set_suffix(p_suffix);
@@ -2114,6 +2118,9 @@ void EditorPropertyQuaternion::setup(double p_min, double p_max, double p_step, 
 		euler[i]->set_allow_greater(true);
 		euler[i]->set_allow_lesser(true);
 		euler[i]->set_allow_finer(true);
+		// the euler values are stored intermediately as a Vector3,
+		// which uses real_t
+		euler[i]->set_real_t_value(true);
 		euler[i]->set_suffix(U"\u00B0");
 	}
 
@@ -2250,6 +2257,7 @@ void EditorPropertyAABB::setup(double p_min, double p_max, double p_step, bool p
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
 		spin[i]->set_allow_finer(true);
+		spin[i]->set_real_t_value(true);
 		spin[i]->set_suffix(p_suffix);
 	}
 }
@@ -2332,6 +2340,7 @@ void EditorPropertyTransform2D::setup(double p_min, double p_max, double p_step,
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
 		spin[i]->set_allow_finer(true);
+		spin[i]->set_real_t_value(true);
 		if (i % 3 == 2) {
 			spin[i]->set_suffix(p_suffix);
 		}
@@ -2418,6 +2427,7 @@ void EditorPropertyBasis::setup(double p_min, double p_max, double p_step, bool 
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
 		spin[i]->set_allow_finer(true);
+		spin[i]->set_real_t_value(true);
 		// Basis is inherently unitless, however someone may want to use it as
 		// a generic way to store 9 values, so we'll still respect the suffix.
 		spin[i]->set_suffix(p_suffix);
@@ -2511,6 +2521,7 @@ void EditorPropertyTransform3D::setup(double p_min, double p_max, double p_step,
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
 		spin[i]->set_allow_finer(true);
+		spin[i]->set_real_t_value(true);
 		if (i % 4 == 3) {
 			spin[i]->set_suffix(p_suffix);
 		}
@@ -2612,6 +2623,7 @@ void EditorPropertyProjection::setup(double p_min, double p_max, double p_step, 
 		spin[i]->set_allow_greater(true);
 		spin[i]->set_allow_lesser(true);
 		spin[i]->set_allow_finer(true);
+		spin[i]->set_real_t_value(true);
 		if (i % 4 == 3) {
 			spin[i]->set_suffix(p_suffix);
 		}
@@ -3465,6 +3477,7 @@ struct EditorPropertyRangeHint {
 	String suffix;
 	bool exp_range = false;
 	bool hide_slider = true;
+	bool real_t = false;
 	bool radians_as_degrees = false;
 };
 
@@ -3506,6 +3519,8 @@ static EditorPropertyRangeHint _parse_range_hint(PropertyHint p_hint, const Stri
 				hint.hide_slider = true;
 			} else if (slice == "exp") {
 				hint.exp_range = true;
+			} else if (slice == "real_t") {
+				hint.real_t = true;
 			}
 		}
 	}
@@ -3634,7 +3649,7 @@ EditorProperty *EditorInspectorDefaultPlugin::get_editor_for_property(Object *p_
 				EditorPropertyFloat *editor = memnew(EditorPropertyFloat);
 
 				EditorPropertyRangeHint hint = _parse_range_hint(p_hint, p_hint_text, default_float_step);
-				editor->setup(hint.min, hint.max, hint.step, hint.hide_slider, hint.exp_range, hint.or_greater, hint.or_less, hint.or_infinite, hint.or_finer, hint.suffix, hint.radians_as_degrees);
+				editor->setup(hint.min, hint.max, hint.step, hint.hide_slider, hint.exp_range, hint.or_greater, hint.or_less, hint.or_infinite, hint.or_finer, hint.real_t, hint.suffix, hint.radians_as_degrees);
 
 				return editor;
 			}
