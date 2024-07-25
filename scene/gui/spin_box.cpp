@@ -226,8 +226,18 @@ void SpinBox::gui_input(const Ref<InputEvent> &p_event) {
 
 void SpinBox::_line_edit_focus_enter() {
 	int col = line_edit->get_caret_column();
+	bool set_to_final = false;
+	if(col == line_edit->get_text().length()) {
+		set_to_final = true;
+	}
+
 	_update_text();
-	line_edit->set_caret_column(col);
+
+	if(set_to_final) {
+		line_edit->set_caret_column(line_edit->get_text().length());
+	} else {
+		line_edit->set_caret_column(col);
+	}
 
 	// LineEdit text might change and it clears any selection. Have to re-select here.
 	if (line_edit->is_select_all_on_focus() && !Input::get_singleton()->is_mouse_button_pressed(MouseButton::LEFT)) {
