@@ -53,7 +53,7 @@ String EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
 String EditorSpinSlider::get_text_value() {
 	if(has_focus() && is_finer_allowed()) {
 		if(single_precision) {
-			return TS->format_number(String::num_real((real_t) get_value()));
+			return TS->format_number(String::num_float((real_t) get_value()));
 		} else {
 			return TS->format_number(String::num(get_value()));
 		}
