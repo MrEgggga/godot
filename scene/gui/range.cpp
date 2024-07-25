@@ -94,7 +94,7 @@ void Range::set_value(double p_val) {
 }
 
 void Range::_set_value_no_signal(double p_val) {
-	if (!Math::is_finite(p_val) && !shared->allow_infinite) {
+	if (!Math::is_finite(p_val)) {
 		return;
 	}
 
@@ -262,7 +262,6 @@ void Range::unshare() {
 	nshared->exp_ratio = shared->exp_ratio;
 	nshared->allow_greater = shared->allow_greater;
 	nshared->allow_lesser = shared->allow_lesser;
-	nshared->allow_infinite = shared->allow_infinite;
 	nshared->allow_finer = shared->allow_finer;
 	_unref_shared();
 	_ref_shared(nshared);
@@ -311,8 +310,6 @@ void Range::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_greater_allowed"), &Range::is_greater_allowed);
 	ClassDB::bind_method(D_METHOD("set_allow_lesser", "allow"), &Range::set_allow_lesser);
 	ClassDB::bind_method(D_METHOD("is_lesser_allowed"), &Range::is_lesser_allowed);
-	ClassDB::bind_method(D_METHOD("set_allow_infinite", "allow"), &Range::set_allow_infinite);
-	ClassDB::bind_method(D_METHOD("is_infinite_allowed"), &Range::is_infinite_allowed);
 	ClassDB::bind_method(D_METHOD("set_allow_finer", "allow"), &Range::set_allow_finer);
 	ClassDB::bind_method(D_METHOD("is_finer_allowed"), &Range::is_finer_allowed);
 
@@ -332,7 +329,6 @@ void Range::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "rounded"), "set_use_rounded_values", "is_using_rounded_values");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_greater"), "set_allow_greater", "is_greater_allowed");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_lesser"), "set_allow_lesser", "is_lesser_allowed");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_infinite"), "set_allow_infinite", "is_infinite_allowed");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_finer"), "set_allow_finer", "is_finer_allowed");
 
 
@@ -405,14 +401,6 @@ void Range::set_allow_lesser(bool p_allow) {
 
 bool Range::is_lesser_allowed() const {
 	return shared->allow_lesser;
-}
-
-void Range::set_allow_infinite(bool p_allow) {
-	shared->allow_infinite = p_allow;
-}
-
-bool Range::is_infinite_allowed() const {
-	return shared->allow_infinite;
 }
 
 void Range::set_allow_finer(bool p_allow) {
